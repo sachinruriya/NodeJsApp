@@ -1,0 +1,61 @@
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <%- include('sidebar') %>
+    <h1>Search Friends</h1>
+    <input type="text" id="search" placeholder="Search for a friend..." />
+    <div id="results"></div>
+
+    <script>
+        $(document).ready(function() {
+          const loggedInUserFriends = <%- JSON.stringify(friends) %>; 
+    console.log("loggedInUserFriends", loggedInUserFriends);
+           // Array of friend objects
+            $('#search').on('input', function() {
+                const query = $(this).val();
+                
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/search-friends',
+                        method: 'GET',
+                        data: { name: query },
+                        success: function(data) {
+                            $('#results').empty();
+                            data.forEach(user => {
+                        const isFriend = loggedInUserFriends.some(friend => friend.friendId.toString() === user._id.toString());
+                        const buttonText = isFriend ? 'Message' : 'Add';
+                        const buttonAction = isFriend ? `messageUser('${user._id}', '${user.name}')` : `addFriend('${user._id}', '${user.name}')`;
+
+                        const html = `
+                            <div>
+                                <span>${user.name}</span>
+                                <button onclick="${buttonAction}">${buttonText}</button>
+                            </div>
+                        `;
+                        $('#results').append(html);
+                            });
+                        }
+                    });
+                } else {
+                    $('#results').empty();
+                }
+            });
+        });
+
+        function addFriend(friendId, friendName) {
+            const userId = '<%= userId %>'; // Replace with the actual logged-in user ID
+            $.ajax({
+                url: '/add-friend',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId, friendId, friendName }),
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(err) {
+                    alert(err.responseJSON.message);
+                }
+            });
+        }
+    </script>
+
