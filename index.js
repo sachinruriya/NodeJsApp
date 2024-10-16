@@ -26,6 +26,7 @@ mongoose.connect('mongodb+srv://sachinruriya:OmfJA4kuXnzrf5xL@crudapp.j55ln.mong
     console.error('MongoDB connection error:', err);
   });
   const route = require("./routes/user");
+  const adminroute = require("./routes/admin");
   app.use(session({
     secret: 'your_secret_key',
     resave: false,
@@ -52,7 +53,7 @@ mongoose.connect('mongodb+srv://sachinruriya:OmfJA4kuXnzrf5xL@crudapp.j55ln.mong
     next();
   });
 app.use("/",route);
-  
+app.use("/admin",adminroute);  
   // Start server
 app.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
