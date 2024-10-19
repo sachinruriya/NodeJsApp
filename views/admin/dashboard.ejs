@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
 <!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>   
 
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css'>
 
@@ -25,26 +25,117 @@
     </thead>
     <tbody>
         <% users.forEach(user => { %>
-            <tr>
+            <tr id="user-<%= user._id %>">
                 <td><%= user.name %></td>
                 <td><%= user.email %></td>
                 <td><%= user.username %></td>
                 <td>
-                    <button class="edit-btn">Edit</button>
+                    <button u_id = "<%= user._id %>" class="edit-btn" data-toggle="modal" data-target="#editModal">Edit</button>
                 </td>
                 <td>
-                    <button class="delete-btn">Delete</button>
+                    <button u_id = "<%= user._id %>" class="delete-btn">Delete</button>
                 </td>
             </tr>
         <% }) %>
         
         <!-- Add more rows as needed -->
+
     </tbody>
 </table>
 </div>
+<!-- Edit User Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form">
+                    <input type="hidden" name="id" id="edit-user-id">
+                    <div class="form-group">
+                        <label for="edit-name">Name</label>
+                        <input type="text" class="form-control" id="edit-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email</label>
+                        <input type="email" class="form-control" id="edit-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-username">Username</label>
+                        <input type="text" class="form-control" id="edit-username" name="username" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- DataTables JS Script -->
+
+
 <!-- DataTables JS Script -->
 <script>
     $(document).ready(function() {
-        $('#userTable').DataTable();  // Initialize DataTable
+        $('#userTable').DataTable(); // Initialize DataTable
+
+        // Event listener for the Edit button
+        $('.edit-btn').on('click', function() {
+            const userId = $(this).attr('u_id'); // Get user ID
+            // Fetch user details from the server
+            fetch(`/admin/edit-userProfile/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the modal with user data
+                    $('#edit-user-id').val(data._id);
+                    $('#edit-name').val(data.name);
+                    $('#edit-email').val(data.email);
+                    $('#edit-username').val(data.username);
+                    $('#editModal').modal('hide');
+                })
+                .catch(error => console.error('Error fetching user data:', error));
+        });
+
+        // Handle the edit form submission
+        $('#edit-form').on('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            const id = $('#edit-user-id').val(); // Get the user ID from the hidden field
+            const formData = {
+    name: $('#edit-name').val(),
+    email: $('#edit-email').val(),
+    username: $('#edit-username').val(),
+};
+
+fetch(`/admin/profile-update/${id}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData), // Send as JSON
+}) .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Parse JSON response
+            })
+            .then(updatedUser => {
+                console.log(updatedUser)
+                // Update the specific row in the DataTable
+                const row = $(`#user-${updatedUser.user._id}`); // Get the row by user ID
+                row.find('td:nth-child(1)').text(updatedUser.user.name);
+                row.find('td:nth-child(2)').text(updatedUser.user.email);
+                row.find('td:nth-child(3)').text(updatedUser.user.username);
+                
+                // Hide the modal
+                $('#editModal').modal('hide');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the user');
+            });
+        });
     });
 </script>

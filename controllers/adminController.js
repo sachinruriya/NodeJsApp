@@ -1,4 +1,5 @@
 // const  express  = require("express")
+const { json } = require("body-parser");
 const userModel = require("../models/user.js");
 const {setUser} = require("../service/auth.js");
 async function adminLoginPage(req,res) {
@@ -20,4 +21,46 @@ async function displayAdminPrf(req,res) {
     // If no user is logged in, redirect to login page
     res.redirect('login-page');
 }
-module.exports = {adminLoginPage,handleadminLogin,displayAdminPrf}
+async function editController(req, res) {
+    try {
+        const user = await userModel.findById(req.params.id); // Fetch user by ID
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user); // Send user data as JSON
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+async function editProfiledata(req, res) {
+    const { name, email, username } = req.body;
+    const { id } = req.params;
+
+    // Validate input
+    if (!name || !email || !username) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    try {
+        const user = await userModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Update the user fields
+        user.email = email;
+        user.username = username;
+        user.name = name;
+
+        await user.save();
+        res.json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
+
+module.exports = {adminLoginPage,handleadminLogin,displayAdminPrf,editController,editProfiledata}
