@@ -40,12 +40,14 @@
                 <span class="link">Dashboard</span>
               </a>
             </li>
+            <% if (user.role == "admin") { %>
             <li class="list">
               <a href="/friends-list" class="nav-link">
                 <i class="bx bx-bar-chart-alt-2 icon"></i>
                 <span class="link">Friends</a></span>
               </a>
             </li>
+            <% } %>
             <li class="list">
               <a href="#" class="nav-link">
                 <i class="bx bx-bell icon"></i>
@@ -80,7 +82,7 @@
 
           <div class="bottom-cotent">
             <li class="list">
-              <a href="#" class="nav-link">
+              <a href="/paymentstripe" class="nav-link">
                 <i class="bx bx-cog icon"></i>
                 <span class="link">Settings</span>
               </a>
@@ -96,7 +98,10 @@
       </div>
     </nav>
 
-    <section class="overlay"></section>
+    <section class="overlay">
+      
+    </section>
+   
  <!-- Bootstrap and jQuery (for toggle functionality) -->
  
    

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const passport = require('passport');
 const {userauthorization} = require("../middlewares/authorization.js")
-const {handleHome,handleRegister,redirecthome,displayUser,handleUserLogin, uploadfilefunc,findFriends,findsearchkey,addfriend} = require("../controllers/authController.js")
+const {handleHome,handleRegister,redirecthome,displayUser,handleUserLogin, uploadfilefunc,findFriends,findsearchkey,addfriend,paymentCreate,paytheamount} = require("../controllers/authController.js")
 router.get("/",redirecthome)
 
 router.get("/registeration",handleHome)
@@ -20,6 +20,8 @@ router.get('/dashboard', isAuthenticated,userauthorization(['admin','user']), di
 router.get('/friends-list',isAuthenticated,userauthorization(['admin','user']),findFriends)
 router.get('/search-friends',findsearchkey)
 router.post('/add-friend',addfriend)
+router.post("/create-payment-intent",paymentCreate)
+router.get("/paymentstripe",paytheamount)
 // Middleware for checking authentication
 function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const passport = require('passport');
 
-const {adminLoginPage,handleadminLogin,displayAdminPrf,editController, editProfiledata} = require("../controllers/adminController");
+const {adminLoginPage,handleadminLogin,displayAdminPrf,editController, editProfiledata,deleteUser} = require("../controllers/adminController");
 const {adminAuthorization}= require("../middlewares/authorization.js")
 
 function isAuthenticated(req, res, next) {
@@ -26,5 +26,6 @@ router.post("/profile-update/:id",isAuthenticated,(req,res,next) => {
  console.log("update", req);
  next();
 },editProfiledata)
+router.delete("/delete-user/:id",isAuthenticated,deleteUser)
 
 module.exports = router;

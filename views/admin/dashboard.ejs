@@ -137,5 +137,31 @@ fetch(`/admin/profile-update/${id}`, {
                 alert('An error occurred while updating the user');
             });
         });
+        $('.delete-btn').on('click', function() {
+        const userId = $(this).attr('u_id'); // Get the user ID from the button attribute
+        const confirmation = confirm('Are you sure you want to delete this user?');
+        
+        if (confirmation) {
+            fetch(`/admin/delete-user/${userId}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete user');
+                }
+                return response.json(); // Parse JSON response
+            })
+            .then(data => {
+                console.log(data.message);
+                // Remove the row from the table
+                $(`#user-${userId}`).remove();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the user');
+            });
+        }
+    });
+        
     });
 </script>

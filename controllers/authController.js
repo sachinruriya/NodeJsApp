@@ -5,6 +5,8 @@ const {setUser} = require("../service/auth.js");
 const { json } = require("body-parser");
 const nodemailer = require('nodemailer');
 const upload = require('../config/cloudinary'); // adjust path accordingly
+const Stripe = require("stripe");
+const stripe = Stripe("sk_test_51QGxZIBD02FCKrcnpNGomskz9wA5UeYLklo7i11B47hxouMWJpbjzpgFkhyPvQGOGTQhWVs1APQoDHQFkIxtnMXZ00SlR80d4b"); // Replace with your actual Secret Key
 
 async function handleHome(req , res) { 
     await res.render("home", { error: null, success: null });   
@@ -165,5 +167,27 @@ async function addfriend (req,res) {
       res.status(500).json({ message: error.message });
   }
 }
-module.exports = {handleHome,handleRegister,redirecthome,displayUser,handleUserLogin,uploadfilefunc,findFriends,findsearchkey,addfriend}
+
+async function paymentCreate(req,res) {
+
+  const { amount,currency} = req.body ;
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100,  // Stripe expects amount in cents
+      currency: currency || "usd",
+    });
+   console.log("paymentIntent",paymentIntent)
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+async function paytheamount(req,res) {
+  console.log("paymentpage")
+  console.log("paymentpage2")
+  res.render("paymentpage")
+}
+module.exports = {handleHome,handleRegister,redirecthome,displayUser,handleUserLogin,uploadfilefunc,findFriends,findsearchkey,addfriend,paymentCreate,paytheamount}
 
