@@ -5,8 +5,8 @@ const passport = require('passport');
 const {adminLoginPage,handleadminLogin,displayAdminPrf,editController, editProfiledata,deleteUser} = require("../controllers/adminController");
 const {adminAuthorization}= require("../middlewares/authorization.js")
 
-function isAuthen(req, res, next) {
-    if (req.isAuthen()) {
+function isAuthend(req, res, next) {
+    if (req.isAuthend()) {
         return next();
     }
     res.status(401).send('Unauthorized');
@@ -16,16 +16,16 @@ router.post('/login', passport.authenticate('local', {
     failureRedirect: '/',
     failureMessage: true
 }), handleadminLogin);
-router.get("/dashboard",isAuthen,adminAuthorization(['admin']), displayAdminPrf);
+router.get("/dashboard",isAuthend,adminAuthorization(['admin']), displayAdminPrf);
 // router.get("/edit-userProfile/:id", isAuthenticated, editController);
-router.get("/edit-userProfile/:id", isAuthen, (req, res, next) => {
+router.get("/edit-userProfile/:id", isAuthend, (req, res, next) => {
     console.log("Received request for edit-userProfile with ID:");
     next(); // Calls the next middleware (editController in this case)
 }, editController);
-router.post("/profile-update/:id",isAuthen,(req,res,next) => {
+router.post("/profile-update/:id",isAuthend,(req,res,next) => {
  console.log("update", req);
  next();
 },editProfiledata)
-router.delete("/delete-user/:id",isAuthen,deleteUser)
+router.delete("/delete-user/:id",isAuthend,deleteUser)
 
 module.exports = router;
